@@ -1,96 +1,127 @@
--- Active: 1714662801252@@127.0.0.1@3306@testing_system_db
+-- Active: 1716975660421@@127.0.0.1@3306@testing_system_db
+/*============================== CREATE DATABASE =======================================*/
+/*======================================================================================*/
 DROP DATABASE IF EXISTS Testing_System_Db;
-CREATE DATABASE IF NOT EXISTS Testing_System_Db;
+CREATE DATABASE Testing_System_Db;
 USE Testing_System_Db;
--- Table 1: Department
-CREATE TABLE IF NOT EXISTS Department(
-    DepartmentID    TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    DepartmentName  NVARCHAR(30) NOT NULL UNIQUE KEY
+
+/*============================== CREATE TABLE=== =======================================*/
+/*======================================================================================*/
+
+-- create table 1: Department
+DROP TABLE IF EXISTS Department;
+CREATE TABLE Department(
+	DepartmentID 			TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    DepartmentName 			NVARCHAR(30) NOT NULL UNIQUE KEY
 );
--- Table 2: Position
-CREATE TABLE IF NOT EXISTS `Position`(
-    PositionID      TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    PositionName    ENUM('Dev', 'Test', 'Scrum Master', 'PM') NOT NULL UNIQUE KEY
+
+-- create table 2: Posittion
+DROP TABLE IF EXISTS Position;
+CREATE TABLE `Position`(
+	PositionID				TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    PositionName			ENUM('Dev','Test','Scrum Master','PM') NOT NULL UNIQUE KEY
 );
--- Table 3: Account
-CREATE TABLE IF NOT EXISTS `Account`(
-    AccountID       TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    Email           VARCHAR(50) NOT NULL UNIQUE KEY,
-    Username        VARCHAR(50) NOT NULL UNIQUE KEY,
-    FullName        NVARCHAR(50) NOT NULL,
-    DepartmentID    TINYINT UNSIGNED NOT NULL,
-    PositionID      TINYINT UNSIGNED NOT NULL,
-    CreateDate      DATETIME DEFAULT NOW(),
-    FOREIGN KEY(DepartmentID) REFERENCES Department(DepartmentID),
-    FOREIGN KEY(PositionID)   REFERENCES `Position`(PositionID)
+
+-- create table 3: Account
+DROP TABLE IF EXISTS `Account`;
+CREATE TABLE `Account`(
+	AccountID				TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Email					VARCHAR(50) NOT NULL UNIQUE KEY,
+    Username				VARCHAR(50) NOT NULL UNIQUE KEY,
+    FullName				NVARCHAR(50) NOT NULL,
+    DepartmentID 			TINYINT UNSIGNED NOT NULL,
+    PositionID				TINYINT UNSIGNED NOT NULL,
+    CreateDate				DATETIME DEFAULT NOW(),
+    FOREIGN KEY(DepartmentID)   REFERENCES Department(DepartmentID) ON DELETE CASCADE,
+    FOREIGN KEY(PositionID)     REFERENCES `Position`(PositionID)   ON DELETE CASCADE 
 );
--- Table 4: Group
-CREATE TABLE IF NOT EXISTS `Group`( 
-    GroupID         TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    GroupName       NVARCHAR(50) NOT NULL UNIQUE KEY,
-    CreatorID       TINYINT UNSIGNED NOT NULL,
-    CreateDate      DATETIME DEFAULT NOW(),
-    FOREIGN KEY(CreatorID) REFERENCES `Account`(AccountID)
+
+-- create table 4: Group
+DROP TABLE IF EXISTS `Group`;
+CREATE TABLE `Group`(
+	GroupID					TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    GroupName				NVARCHAR(50) NOT NULL UNIQUE KEY,
+    CreatorID				TINYINT UNSIGNED,
+    CreateDate				DATETIME DEFAULT NOW(),
+    FOREIGN KEY(CreatorID) 	REFERENCES `Account`(AccountId) ON DELETE CASCADE 
 );
--- Table 5: GroupAccount
-CREATE TABLE IF NOT EXISTS GroupAccount( 
-    GroupID         TINYINT UNSIGNED NOT NULL,
-    AccountID       TINYINT UNSIGNED NOT NULL,
-    JoinDate        DATETIME DEFAULT NOW(),
+
+-- create table 5: GroupAccount
+DROP TABLE IF EXISTS GroupAccount;
+CREATE TABLE GroupAccount(
+	GroupID					TINYINT UNSIGNED NOT NULL,
+    AccountID				TINYINT UNSIGNED NOT NULL,
+    JoinDate				DATETIME DEFAULT NOW(),
     PRIMARY KEY(GroupID, AccountID),
-    FOREIGN KEY(GroupID) REFERENCES `Group`(GroupID)
+    FOREIGN KEY(GroupID) 		REFERENCES `Group`(GroupID) ON DELETE CASCADE,
+    FOREIGN KEY(GroupID) 		REFERENCES `Group`(GroupID) ON DELETE CASCADE 
 );
--- Table 6: TypeQuestion
-CREATE TABLE IF NOT EXISTS TypeQuestion( 
-    TypeID          TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    TypeName        ENUM('Essay', 'Multiple-Choice') NOT NULL UNIQUE KEY
+
+-- create table 6: TypeQuestion
+DROP TABLE IF EXISTS TypeQuestion;
+CREATE TABLE TypeQuestion (
+    TypeID 			TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    TypeName 		ENUM('Essay','Multiple-Choice') NOT NULL UNIQUE KEY
 );
--- Table 7: CategoryQuestion
-CREATE TABLE IF NOT EXISTS CategoryQuestion( 
-    CategoryID      TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    CategoryName    NVARCHAR(50)
+
+-- create table 7: CategoryQuestion
+DROP TABLE IF EXISTS CategoryQuestion;
+CREATE TABLE CategoryQuestion(
+    CategoryID				TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    CategoryName			NVARCHAR(50) NOT NULL UNIQUE KEY
 );
--- Table 8: Question
-CREATE TABLE IF NOT EXISTS Question(
-    QuestionID      TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    `Content`       NVARCHAR(200) NOT NULL,
-    CategoryID      TINYINT UNSIGNED NOT NULL,
-    TypeID          TINYINT UNSIGNED NOT NULL,
-    CreatorID       TINYINT UNSIGNED NOT NULL,
-    CreateDate      DATETIME DEFAULT NOW(),
-    FOREIGN KEY(CategoryID) REFERENCES CategoryQuestion(CategoryID),
-    FOREIGN KEY(TypeID)     REFERENCES TypeQuestion    (TypeID)    ,
-    FOREIGN KEY(CreatorID)  REFERENCES `Account`       (AccountID)
+
+-- create table 8: Question
+DROP TABLE IF EXISTS Question;
+CREATE TABLE Question(
+    QuestionID				TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Content					NVARCHAR(100) NOT NULL,
+    CategoryID				TINYINT UNSIGNED NOT NULL,
+    TypeID					TINYINT UNSIGNED NOT NULL,
+    CreatorID				TINYINT UNSIGNED NOT NULL,
+    CreateDate				DATETIME DEFAULT NOW(),
+    FOREIGN KEY(CategoryID) 	REFERENCES CategoryQuestion(CategoryID) ON DELETE CASCADE,
+    FOREIGN KEY(TypeID) 		REFERENCES TypeQuestion    (TypeID)     ON DELETE CASCADE,
+    FOREIGN KEY(CreatorID) 		REFERENCES `Account`       (AccountId)  ON DELETE CASCADE  
 );
--- Table 9: Answer
-CREATE TABLE IF NOT EXISTS Answer(
-    AnswerID        TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    `Content`       NVARCHAR(200) NOT NULL,
-    QuestionID      TINYINT UNSIGNED NOT NULL,
-    isCorrect       BIT DEFAULT 1,
-    FOREIGN KEY(QuestionID) REFERENCES Question(QuestionID)
+
+-- create table 9: Answer
+DROP TABLE IF EXISTS Answer;
+CREATE TABLE Answer(
+    AnswerID				TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Content					NVARCHAR(100) NOT NULL,
+    QuestionID				TINYINT UNSIGNED NOT NULL,
+    isCorrect				BIT DEFAULT 1,
+    FOREIGN KEY(QuestionID) REFERENCES Question(QuestionID) ON DELETE CASCADE 
 );
--- Table 10: Exam
-CREATE TABLE IF NOT EXISTS Exam(
-    ExamID          TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    `Code`          CHAR(10) NOT NULL,
-    Title           NVARCHAR(50) NOT NULL,
-    CategoryID      TINYINT UNSIGNED NOT NULL,
-    Duration        TINYINT UNSIGNED NOT NULL,
-    CreatorID       TINYINT UNSIGNED NOT NULL,
-    CreateDate      DATETIME DEFAULT NOW(),
-    FOREIGN KEY(CategoryID) REFERENCES CategoryQuestion(CategoryID),
-    FOREIGN KEY(CreatorID)  REFERENCES `Account`(AccountID)
+
+-- create table 10: Exam
+DROP TABLE IF EXISTS Exam;
+CREATE TABLE Exam(
+    ExamID					TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `Code`					CHAR(10) NOT NULL,
+    Title					NVARCHAR(50) NOT NULL,
+    CategoryID				TINYINT UNSIGNED NOT NULL,
+    Duration				TINYINT UNSIGNED NOT NULL,
+    CreatorID				TINYINT UNSIGNED NOT NULL,
+    CreateDate				DATETIME DEFAULT NOW(),
+    FOREIGN KEY(CategoryID) REFERENCES CategoryQuestion(CategoryID) ON DELETE CASCADE,
+    FOREIGN KEY(CreatorID) 	REFERENCES `Account`       (AccountId)  ON DELETE CASCADE 
 );
--- Table 11: ExamQuestion
-CREATE TABLE IF NOT EXISTS ExamQuestion(
-    ExamID          TINYINT UNSIGNED NOT NULL,
-    QuestionID      TINYINT UNSIGNED NOT NULL,
-    PRIMARY KEY(ExamID, QuestionID),
-    FOREIGN KEY(ExamID)     REFERENCES Exam    (ExamID),
-    FOREIGN KEY(QuestionID) REFERENCES Question(QuestionID)
+
+-- create table 11: ExamQuestion
+DROP TABLE IF EXISTS ExamQuestion;
+CREATE TABLE ExamQuestion(
+    ExamID				TINYINT UNSIGNED NOT NULL,
+	QuestionID			TINYINT UNSIGNED NOT NULL,
+    FOREIGN KEY(QuestionID) REFERENCES Question(QuestionID) ON DELETE CASCADE,
+    FOREIGN KEY(ExamID)     REFERENCES Exam    (ExamID)     ON DELETE CASCADE,
+    PRIMARY KEY (ExamID,QuestionID) 
 );
--- Add data Table 1: Department
+
+/*============================== INSERT DATABASE =======================================*/
+/*======================================================================================*/
+-- Add data Department
 INSERT INTO Department(DepartmentName) 
 VALUES
 						(N'Marketing'	),
@@ -104,7 +135,7 @@ VALUES
 						(N'Thư kí'		),
 						(N'Bán hàng'	);
     
--- Add data Table 2: Position
+-- Add data position
 INSERT INTO `Position`	(PositionName	) 
 VALUES 					('Dev'			),
 						('Test'			),
@@ -112,10 +143,10 @@ VALUES 					('Dev'			),
 						('PM'			); 
 
 
--- Add data Table 3: Account
-INSERT INTO `Account`(Email								, Username			, FullName				, DepartmentID	, PositionID, CreateDate)
+-- Add data Account
+INSERT INTO `Account`(Email								, Username			, FullName				, DepartmentID	, PositionID, CreateDate )
 VALUES 				('haidang29productions@gmail.com'	, 'dangblack'		,'Nguyễn hải Đăng'		,   '5'			,   '1'		,'2020-03-05'),
-					('account1@gmail.com'				, 'quanganh'		,'Nguyen Chien Thang2'	,   '1'			,   '2'		,'2020-03-05'),
+					('account1@gmail.com'				, 'quanganh'		,'Nguyễn đăng hải'		,   '1'			,   '2'		,'2020-03-05'),
                     ('account2@gmail.com'				, 'vanchien'		,'Nguyen Van Chien'		,   '2'			,   '3'		,'2020-03-07'),
                     ('account3@gmail.com'				, 'cocoduongqua'	,'Duong Do'				,   '3'			,   '4'		,'2020-03-08'),
                     ('account4@gmail.com'				, 'doccocaubai'		,'Nguyen Chien Thang1'	,   '4'			,   '4'		,'2020-03-10'),
@@ -125,7 +156,7 @@ VALUES 				('haidang29productions@gmail.com'	, 'dangblack'		,'Nguyễn hải Đ�
                     ('duongghuu@gmail.com'				, 'duongghuu'		,'Duong Van Huu'		,   '9'			,   '2'		,'2020-04-07'),
                     ('vtiaccademy@gmail.com'			, 'vtiaccademy'		,'Vi Ti Ai'				,   '10'		,   '1'		,'2020-04-09');
 
--- Add data Table 4: Group
+-- Add data Group
 INSERT INTO `Group`	(  GroupName			, CreatorID		, CreateDate)
 VALUES 				(N'Testing System'		,   5			,'2019-03-05'),
 					(N'Development'			,   1			,'2020-03-07'),
@@ -138,8 +169,8 @@ VALUES 				(N'Testing System'		,   5			,'2019-03-05'),
                     (N'Chat with love'		,   9			,'2020-04-09'),
                     (N'Vi Ti Ai'			,   10			,'2020-04-10');
 
--- Add data Table 5: GroupAccount
-INSERT INTO GroupAccount	(  GroupID	, AccountID	, JoinDate	 )
+-- Add data GroupAccount
+INSERT INTO `GroupAccount`	(  GroupID	, AccountID	, JoinDate	 )
 VALUES 						(	1		,    1		,'2019-03-05'),
 							(	1		,    2		,'2020-03-07'),
 							(	3		,    3		,'2020-03-09'),
@@ -152,13 +183,13 @@ VALUES 						(	1		,    1		,'2019-03-05'),
 							(	10		,    10		,'2020-04-10');
 
 
--- Add data Table 6: TypeQuestion
+-- Add data TypeQuestion
 INSERT INTO TypeQuestion	(TypeName			) 
 VALUES 						('Essay'			), 
 							('Multiple-Choice'	); 
 
 
--- Add data Table 7: CategoryQuestion
+-- Add data CategoryQuestion
 INSERT INTO CategoryQuestion		(CategoryName	)
 VALUES 								('Java'			),
 									('ASP.NET'		),
@@ -171,9 +202,9 @@ VALUES 								('Java'			),
 									('C Sharp'		),
 									('PHP'			);
 													
--- Add data Table 8: Question
+-- Add data Question
 INSERT INTO Question	(Content			, CategoryID, TypeID		, CreatorID	, CreateDate )
-VALUES 					(N'Câu hỏi về Java'	,	1		,   '1'			,   '2'		,'2020-04-05'),
+VALUES 					(N'Câu hỏi về Java Câu hỏi về Java Câu hỏi về Java Câu hỏi về Java'	,	1		,   '1'			,   '2'		,'2020-04-05'),
 						(N'Câu Hỏi về PHP'	,	10		,   '2'			,   '2'		,'2020-04-05'),
 						(N'Hỏi về C#'		,	9		,   '2'			,   '3'		,'2020-04-06'),
 						(N'Hỏi về Ruby'		,	6		,   '1'			,   '4'		,'2020-04-06'),
@@ -184,7 +215,7 @@ VALUES 					(N'Câu hỏi về Java'	,	1		,   '1'			,   '2'		,'2020-04-05'),
 						(N'Hỏi về SQL'		,	4		,   '2'			,   '9'		,'2020-04-07'),
 						(N'Hỏi về Python'	,	7		,   '1'			,   '10'	,'2020-04-07');
 
--- Add data Table 9: Answers
+-- Add data Answers
 INSERT INTO Answer	(  Content		, QuestionID	, isCorrect	)
 VALUES 				(N'Trả lời 01'	,   1			,	0		),
 					(N'Trả lời 02'	,   1			,	1		),
@@ -197,7 +228,7 @@ VALUES 				(N'Trả lời 01'	,   1			,	0		),
                     (N'Trả lời 09'	,   9			,	1		),
                     (N'Trả lời 10'	,   10			,	1		);
 	
--- Add data Table 10: Exam
+-- Add data Exam
 INSERT INTO Exam	(`Code`			, Title					, CategoryID	, Duration	, CreatorID		, CreateDate )
 VALUES 				('VTIQ001'		, N'Đề thi C#'			,	1			,	60		,   '5'			,'2019-04-05'),
 					('VTIQ002'		, N'Đề thi PHP'			,	10			,	60		,   '2'			,'2019-04-05'),
@@ -211,7 +242,7 @@ VALUES 				('VTIQ001'		, N'Đề thi C#'			,	1			,	60		,   '5'			,'2019-04-05'),
                     ('VTIQ010'		, N'Đề thi ASP.NET'		,	7			,	90		,   '10'		,'2020-04-08');
                     
                     
--- Add data Table 11: ExamQuestion
+-- Add data ExamQuestion
 INSERT INTO ExamQuestion(ExamID	, QuestionID	) 
 VALUES 					(	1	,		5		),
 						(	2	,		10		), 

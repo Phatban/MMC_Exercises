@@ -1,4 +1,3 @@
--- Active: 1714662801252@@127.0.0.1@3306@testing_system_db
 CREATE DATABASE IF NOT EXISTS Testing_System_Db;
 USE Testing_System_Db;
 CREATE TABLE IF NOT EXISTS Department(
